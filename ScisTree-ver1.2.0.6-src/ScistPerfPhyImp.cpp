@@ -342,8 +342,8 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
 	}
 
 	// screen for optimal trees
-	for(int i=0;i<results.size();i++) {
-	  resultType res=results[i].get();
+	for(auto& i: results) {
+	  resultType res=i.get();
 	  double loglikeliStep=std::get<0>(res);
 	  if( loglikeliStep > loglikeliBest) {
 	    loglikeliBest = loglikeliStep;
