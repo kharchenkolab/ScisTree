@@ -12,10 +12,12 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <tuple>
 #include "ScistPerfPhyUtils.hpp"
 #include "ScistGenotype.hpp"
 #include "TreeBuilder.h"
 #include "UtilsNumerical.h"
+#include "ctpl_stl.h"
 
 class PhyloDistance;
 class MarginalTree;
@@ -46,6 +48,7 @@ public:
     void SetCellNames( const std::vector<std::string> &listCellNamesIn ) { listCellNames=listCellNamesIn; }
     void SetSiteNames( const std::vector<std::string> &listSiteNamesIn ) { listSiteNames=listSiteNamesIn; }
     void SetMutTreeFileName(const std::string &strMutTreeFileNameIn) { this->strMutTreeFileName = strMutTreeFileNameIn; }
+    void SetNumThreads(int n) { numThreads = n; }
     static void GetNgbrTreesFrom(int numHaps, const std::string &strTree, std::set<std::string> &setNgbrTrees );
     static void GetNgbrTreesFromSPR(int numHaps, const std::string &strTree, std::set<std::string> &setNgbrTrees );
     static std::string RemapLeafLbls(int numHaps, const std::string &strTree, const std::map<int,int> &mapLabels );
@@ -79,6 +82,7 @@ private:
     std::vector<std::string> listCellNames;
     std::vector<std::string> listSiteNames;
     std::string strMutTreeFileName;
+    int numThreads;
 };
 
 // *************************************************************************************

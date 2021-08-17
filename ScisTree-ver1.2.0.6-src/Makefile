@@ -2,7 +2,7 @@ CC = g++
 LIBPATH =
 
 #CFLAGS = -O3 -Wall -g -D HAVE_PTHREADS
-CFLAGS = -O3 -std=c++11 
+CFLAGS = -O3 -std=c++11 -pthread
 
 all: scist
 
@@ -84,4 +84,4 @@ scist: Utils.o Utils2.o  Utils3.o Utils4.o UtilsNumerical.o UnWeightedGraph.o Tr
 	$(CC) -o scistree Utils.o Utils2.o  Utils3.o Utils4.o UtilsNumerical.o UnWeightedGraph.o TreeBuilder.o RerootTreeUtils.o BioSequenceMatrix.o  \
        BinaryMatrix.o GenotypeMatrix.o PhylogenyTreeBasic.o PhylogenyTree.o MarginalTree.o RBT.o \
        ScistGenotype.o ScistPerfPhyUtils.o ScistPerfPhyImp.o ScistDoublet.o ScistErrRateInf.o main.o \
-        -lm
+        -lm -pthread

@@ -42,6 +42,7 @@ static void Usage()
     //cout << "\t -s <level>        Use SPR tree search (this will be slower); level: # of SPRs to allow (default is 1)\n";
     cout << "\t -o <output-file>  Set output file (used for mutation tree output (in GML) format; should have suffix .gml (default: mutation-tree.gml)\n";
     cout << "\t -t <threshold>    Discard somewhat ambigous genotyeps when constructing intial trees: \n\t\t\t genotypes discarded if the prob. of alternative genotypes is less than <threshold> \n\t\t\t(default is 0, i.e. use all genotypes)\n";
+    cout << "\t -k <number of threads>  Number of threads to use (default 1)\n";
 	exit(1);
 }
 
@@ -63,6 +64,7 @@ static int numSCs = 0;
 static string strMutTreeOutFile = "mutation-tree.gml";
 static bool fOutPPEdgeLabel = false;
 static bool fOutputLabel=true;
+static int intNumThreads=1;
 // GLobal variables
 
 
@@ -152,6 +154,13 @@ static bool CheckArguments(int argc, char **argv)
             ++i;
             strMutTreeOutFile = argv[i];
             cout << "Use mutation tree file name to " << strMutTreeOutFile << endl;
+        }
+        else if( argv[i][0] == '-' && argv[i][1] == 'k' )
+        {
+            YW_ASSERT_INFO( i <argc-1, "Check input" );
+            ++i;
+            intNumThreads = std::stoi(argv[i]);
+            cout << "Use "<<intNumThreads<<" processing threads" << endl;
         }
 
         else if( argv[i][0] != '-' )
@@ -364,6 +373,7 @@ static void TestCode( const char *filename )
             ppInfHeu.SetCellNames(listCellNames);
             ppInfHeu.SetSiteNames(listSiteNames);
             ppInfHeu.SetMutTreeFileName(strMutTreeOutFile);
+	    ppInfHeu.SetNumThreads(intNumThreads);
             ppInfHeu.Infer();
         }
         else

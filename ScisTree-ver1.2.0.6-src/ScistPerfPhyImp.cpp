@@ -276,6 +276,15 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
     // now search for neighborhood of the current tree to optimize the tree
     int numSPRPerformed = 0;
     bool fNNI = true;
+
+
+    // thread pool
+    if( fVerbose) {
+      std::cout<<"starting pool with "<<numThreads<<" threads"<<endl;
+    }
+    ctpl::thread_pool p( numThreads>1 ? numThreads : 1 );
+    
+    
     while(true)
     {
 //if(fNNI)
@@ -308,31 +317,42 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
         }
 //cout << "Current opt tree: " << strTreeOpt << endl;
         bool fCont = false;
+
+
+	// allocate threadpool results vector
+	typedef std::tuple<double, set<string>::iterator, vector<pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > > resultType;
+	std::vector<std::future< resultType > > results;
+	results.reserve(setNgbrTrees.size());
+
+	// queue calculations
         for(set<string> :: iterator it = setNgbrTrees.begin(); it != setNgbrTrees.end(); ++it)
         {
             if( setTreeSearchedBefore.find(*it) != setTreeSearchedBefore.end() )
             {
-                continue;
+	      continue;
             }
             setTreeSearchedBefore.insert(*it);
             
 //cout << "Neighbor tree: " << *it << endl;
-            //set<ScistPerfPhyCluster> setClus;
-            //GetClustersFromTree(*it, setClus);
-            vector<pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > listChangedClustersStep;
-            //double loglikeliStep = ScoreSetClusters( setClus, listChangedClustersStep);
-            double loglikeliStep = ScoreTree( *it, listChangedClustersStep );
-//cout << ", loglikeliStep: " << loglikeliStep << ", cost: " <<  CalcMaxProbUpperBound()- loglikeliStep << endl;
-            //if( loglikeliStep < loglikeliBest )
-            if( loglikeliStep > loglikeliBest)
-            {
-//cout << "BETTER.\n";
-                loglikeliBest = loglikeliStep;
-                strTreeOpt = *it;
-                listChangedClustersOpt = listChangedClustersStep;
-                fCont = true;
-            }
-        }
+	    results.push_back( p.push([this,it](int) {
+		  vector<pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > listChangedClustersStep;
+		  double loglikeliStep = this->ScoreTree( *it, listChangedClustersStep );
+		  return(resultType(loglikeliStep, it, listChangedClustersStep));
+		}));
+	}
+
+	// screen for optimal trees
+	for(int i=0;i<results.size();i++) {
+	  resultType res=results[i].get();
+	  double loglikeliStep=std::get<0>(res);
+	  if( loglikeliStep > loglikeliBest) {
+	    loglikeliBest = loglikeliStep;
+	    strTreeOpt = * (std::get<1>(res));
+	    listChangedClustersOpt = (std::get<2>(res));
+	    fCont = true;
+	  }
+	}
+
         if( fCont == false )
         {
             if( fNNI == false )
