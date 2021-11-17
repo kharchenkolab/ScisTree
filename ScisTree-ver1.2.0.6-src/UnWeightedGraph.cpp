@@ -7,30 +7,6 @@
 #include <stack>
 using namespace std; 
 
-#if 0
-void DumpIntVec( const vector<int> &vec)
-{
-	if(vec.size() == 0)
-	{
-		cout << "No items in the vector." << endl;
-		return;
-	}	
-	for(int i=0; i<vec.size()-1; ++i)
-	{
-		cout << vec[i] << ", ";
-	}
-	cout << vec[ vec.size()-1] << endl;
-}
-
-void DumpIntArray(const int array[], int sz) 
-{
-	for(int i=0; i<sz-1; ++i)
-	{
-		cout << array[i] << ", ";
-	}
-	cout << array[ sz-1] << endl;
-}
-#endif
 
 void OutputQuotedString(ofstream &outFile, const char *buf)
 {

@@ -15,8 +15,6 @@
 using namespace std;
 
 
-
-
 void split(string &content, vector<string> &elements) {
 elements.clear();
 string tmp;
@@ -76,12 +74,6 @@ return ret+x;
 }
 
 
-int stringToInt(string & content) {
-int ret =0;
-for (int i=0;i<content.size();++i)
-ret =ret*10 +content[i] -'0';
-return ret;
-}
 void buildGraph(vector<string> & elements, map<int, map<int, double> > &graph, map<string, int> & leaf_to_label) {
 graph.clear();
 stack<char> s1;
@@ -384,8 +376,8 @@ printf("\n");
 
 
 string ReRootTreeNewick( char *nwFile, char *taxaNewRoot ) {
-//char * a="(((1:1.0,2:2.0):1.2,(3:1.0,4:2.0):1.6):1.5,5:1.0)";
-//char *b ="3";
-// usage for converting
-return convert(nwFile, taxaNewRoot);
+    //char * a="(((1:1.0,2:2.0):1.2,(3:1.0,4:2.0):1.6):1.5,5:1.0)";
+    //char *b ="3";
+    // usage for converting
+    return convert(nwFile, taxaNewRoot);
 }

@@ -313,24 +313,13 @@ void ScistPerfPhyGuideTree :: Init(const std::string &strGuideTree)
             DecAllNumInSet(ss);
             ScistPerfPhyCluster clus(ss);
             this->setGuideTreeClus.insert(clus);
-//cout << "guide tree cluster: ";
-//clus.Dump();
+
         }
         
         itorTree.Next();
     }
     
-    //set<set<int> > setClades;
-    //treeGuide.GetAllClades(setClades);
-    //for(set<set<int> > :: iterator it = setClades.begin(); it != setClades.end(); ++it)
-    //{
-    //    set<int> ss=*it;
-    //    DecAllNumInSet(ss);
-    //    ScistPerfPhyCluster clus(ss);
-    //    this->setGuideTreeClus.insert(clus);
-//cout << "guide tree cluster: ";
-//clus.Dump();
-    //}
+
 }
 
 void ScistPerfPhyGuideTree :: InitDecAll( const std::string &strGuideTree1Base )
@@ -384,10 +373,7 @@ double ScistPerfPhyGuideTree :: EvalClus( const ScistPerfPhyCluster &clus ) cons
         //
         int score = EvalClusWith( clus, *it );
         res += score;
-        //if( res < score )
-        //{
-        //    res = score;
-        //}
+
     }
     //return res;
     return res/setGuideTreeClus.size();
@@ -405,11 +391,7 @@ int ScistPerfPhyGuideTree :: EvalClusWith(const ScistPerfPhyCluster &clus, const
     }
     return res;
     
-    //ScistPerfPhyCluster clusUnion = clus;
-    //clusUnion.UnionWith(clusInTree);
-    //ScistPerfPhyCluster clusInt, clus1, clus2;
-    //clus.IntersectWith(clusInTree, clusInt, clus1, clus2);
-    //return ((double) clusInt.GetSize() )/ clusUnion.GetSize();
+
 }
 
 // *************************************************************************************
@@ -434,75 +416,14 @@ std::string ScistInfPerfPhyUtils :: ConsTreeWCombDistClus(const ScistGenGenotype
         setClustersMustHave.insert(setOnes);
     }
     
-#if 0
-    // add all NJ clusters when compatible
-    std::set< ScistPerfPhyCluster > clusAll;
-    this->treeGuide.GetAllClusters( clusAll );
-    //string strGuideTree = genos.ConsNJTree();
-//cout << "Neighbor joining tree from corrected genotypes: " << strGuideTree << endl;
-    //PhylogenyTreeBasic treeGuide;
-    //treeGuide.ConsOnNewick(strGuideTree);
-    //set<set<int> > setClades;
-    //treeGuide.GetAllClades(setClades);
-    //for(set<set<int> > :: iterator it = setClades.begin(); it != setClades.end(); ++it)
-    for(set<ScistPerfPhyCluster> :: iterator it = clusAll.begin(); it != clusAll.end(); ++it)
-    {
-        //set<int> ss=*it;
-        set<int> ss;
-        it->GetClus(ss);
-        //DecAllNumInSet(ss);
-        //ScistPerfPhyCluster clus(ss);
-        ScistPerfPhyCluster clus = *it;
-        if( clus.GetSize() <=1 )
-        {
-            continue;
-        }
-        // make sure compatible with exisitng clusters
-        bool fCompat = true;
-        for( map<int, ScistPerfPhyCluster> :: const_iterator it2 = setClus.begin(); it2 != setClus.end(); ++it2 )
-        {
-            if( clus.IsCompatibleWith(it2->second) == false )
-            {
-                fCompat = false;
-                break;
-            }
-        }
-        if( fCompat)
-        {
-//cout << "ADDING guide tree cluster: ";
-//clus.Dump();
-            setClustersMustHave.insert( ss );
-        }
-
-    }
-#endif
-    
-    //
     PhyloDistance phyDist;
-#if 0
-    BinaryMatrix matClus;
-    matClus.SetSize( genosInput.GetNumHaps(), genosInput.GetNumSites() );
-    //
-    for( map<int, ScistPerfPhyCluster> :: const_iterator it = setClus.begin(); it != setClus.end(); ++it )
-    {
-        for(int i=0; i<genosInput.GetNumHaps(); ++i)
-        {
-            matClus.SetValAt( i, it->first, 0 );
-        }
-        set<int> setOnes;
-        it->second.GetClus(setOnes);
-        for( set<int> :: iterator it2 = setOnes.begin(); it2 != setOnes.end(); ++it2 )
-        {
-            matClus.SetValAt(*it2, it->first, 1);
-        }
-    }
-//cout << "matClus: ";
-//matClus.Dump();
-#endif
-    for(int r1=0; r1<genos.GetNumHaps(); ++r1)
+
+    int numberHaps = genos.GetNumHaps();
+
+    for(int r1=0; r1<numberHaps; ++r1)
     {
         phyDist.SetDistance(r1,r1,0.0);
-        for(int r2 = r1+1; r2<genos.GetNumHaps(); ++r2)
+        for(int r2 = r1+1; r2<numberHaps; ++r2)
         {
             //set<int> setDiffs;
             //matClus.GetSequencesDiffSites(r1,r2, setDiffs);
@@ -534,7 +455,7 @@ std::string ScistInfPerfPhyUtils :: ConsTreeWCombDistClus(const ScistGenGenotype
     phTree.ConsOnNewick( strTreeRaw );
     
     map<string,string> mapIdToLabels;
-    for(int i=0; i<genos.GetNumHaps(); ++i)
+    for(int i=0; i<numberHaps; ++i)
     {
 //cout << "i: " << i << ", name: " << this->genosInput.GetGenotypeName(i) << endl;
         //string str = "(" + std::to_string(i) + ")";
@@ -556,13 +477,7 @@ std::string ScistInfPerfPhyUtils :: ConsTreeWCombDistClus(const ScistGenGenotype
     phTree.ConsNewickSorted(res);
     //phTree.ConsNewick(res, false, 0.0, true);
     
-    // output a tree in GML format
-    //if( this->fOutput )
-    //{
-    //    string fileNameOut =  genosInput.GetFileName() + ".tree.gml";
-    //    phTree.OutputGML(fileNameOut.c_str());
-    //}
-    
+
     return res;
 }
 

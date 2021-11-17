@@ -11,8 +11,6 @@ using namespace std;
 #include "Utils3.h"
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Define a simple coalescent tree. My experience shows that such a data structure can 
 // be quite useful

@@ -287,14 +287,6 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
     
     while(true)
     {
-//if(fNNI)
-//{
-//cout << "NNI mode\n";
-//}
-//else
-//{
-//cout << "SPR mode\n";
-//}
         
         set<string> setNgbrTrees;
         if( fNNI == false && fSPR && numSPRPerformed <= maxSPRNum )
@@ -319,39 +311,39 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
         bool fCont = false;
 
 
-	// allocate threadpool results vector
-	typedef std::tuple<double, set<string>::iterator, vector<pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > > resultType;
-	std::vector<std::future< resultType > > results;
-	results.reserve(setNgbrTrees.size());
+    	// allocate threadpool results vector
+    	typedef std::tuple<double, std::set<std::string>::iterator, std::vector<std::pair<ScistPerfPhyCluster, ScistPerfPhyCluster>>> resultType;
+    	std::vector<std::future< resultType>> results;
+    	results.reserve(setNgbrTrees.size());
 
-	// queue calculations
+    	// queue calculations
         for(set<string> :: iterator it = setNgbrTrees.begin(); it != setNgbrTrees.end(); ++it)
         {
             if( setTreeSearchedBefore.find(*it) != setTreeSearchedBefore.end() )
             {
-	      continue;
+	           continue;
             }
             setTreeSearchedBefore.insert(*it);
-            
-//cout << "Neighbor tree: " << *it << endl;
-	    results.push_back( p.push([this,it](int) {
-		  vector<pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > listChangedClustersStep;
-		  double loglikeliStep = this->ScoreTree( *it, listChangedClustersStep );
-		  return(resultType(loglikeliStep, it, listChangedClustersStep));
-		}));
-	}
+                
 
-	// screen for optimal trees
-	for(auto& i: results) {
-	  resultType res=i.get();
-	  double loglikeliStep=std::get<0>(res);
-	  if( loglikeliStep > loglikeliBest) {
-	    loglikeliBest = loglikeliStep;
-	    strTreeOpt = * (std::get<1>(res));
-	    listChangedClustersOpt = (std::get<2>(res));
-	    fCont = true;
-	  }
-	}
+    	    results.push_back( p.push([this,it](int) {
+    		    std::vector<std::pair<ScistPerfPhyCluster,ScistPerfPhyCluster> > listChangedClustersStep;
+    		    double loglikeliStep = this->ScoreTree( *it, listChangedClustersStep );
+    		    return(resultType(loglikeliStep, it, listChangedClustersStep));
+    		}));
+    	}
+
+    	// screen for optimal trees
+    	for(auto& i: results) {
+    	  resultType res=i.get();
+    	  double loglikeliStep=std::get<0>(res);
+    	  if( loglikeliStep > loglikeliBest) {
+    	    loglikeliBest = loglikeliStep;
+    	    strTreeOpt = * (std::get<1>(res));
+    	    listChangedClustersOpt = (std::get<2>(res));
+    	    fCont = true;
+    	  }
+    	}
 
         if( fCont == false )
         {
@@ -368,6 +360,8 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
             fNNI = true;
         }
     }
+    // END of WHILE loop 
+
     // output the final tree
     std::set< std::pair<std::pair<int,int>, int> > listChangedPlaces;
     for(int site = 0; site<this->genosInput.GetNumSites(); ++site)
@@ -467,7 +461,6 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
 
 double ScistPerfPhyMLE :: OptBranchLens( const std::string &strTree, std::string &strTreeBrOpt )
 {
-    //
     MarginalTree treeBrOpt;
     ReadinMarginalTreesNewickWLenString( strTree, this->genosInput.GetNumHaps(), treeBrOpt );
     ScistFullPerfPhyMLE sfpp(this->genosInput);
@@ -499,11 +492,7 @@ void ScistPerfPhyMLE :: Init()
     
     // construct NJ tree as the initial tree
     string strNJ = this->genosInput.ConsNJTreeZeroRoot();
-//cout << "Guide tree: " << strNJ << endl;
-    //string strNJ = this->genosInput.ConsNJTree();
-//cout << "Zero-rooted initial tree: " << strNJ << endl;
-//cout << "Genotype input: \n";
-//this->genosInput.Dump();
+
     //
     this->treeGuide.Init(strNJ);
     
@@ -523,11 +512,6 @@ void ScistPerfPhyMLE :: Init()
 
 std::string ScistPerfPhyMLE :: ConsTreeFromSetClusters( const std::set<ScistPerfPhyCluster> &setClusters ) const
 {
-//cout << "All the clusters: \n";
-//for(set<ScistPerfPhyCluster> :: const_iterator it = setClusters.begin(); it != setClusters.end(); ++it)
-//{
-//it->Dump();
-//}
     //
     // now construct tree
     ScistInfPerfPhyUtils treeBuild;
@@ -544,8 +528,6 @@ std::string ScistPerfPhyMLE :: ConsTreeFromSetClusters( const std::set<ScistPerf
 
 void ScistPerfPhyMLE :: GetNgbrTreesFrom(int numHaps, const std::string &strTree, std::set<std::string> &setNgbrTrees )
 {
-//cout << "GetNgbrTreesFrom: numHaps: " << numHaps << ", tree: " << strTree << endl;
-    //
     setNgbrTrees.clear();
     MarginalTree treeCurr;
     ReadinMarginalTreesNewickWLenString( strTree, numHaps, treeCurr );
@@ -571,10 +553,7 @@ void ScistPerfPhyMLE :: GetNgbrTreesFromSPR(int numHaps, const std::string &strT
     vector<int> listLeafLblsOld;
     //treeCurr.MapLeafLblConsecutiveOrder( listLeafLblsOld );
     treeCurr.GetLabelList(listLeafLblsOld);
-//cout << "Mapped leaves: ";
-//DumpIntVec(listLeafLblsOld);
-//cout << "Changed tree: " << treeCurr.GetNewick() << endl;
-    
+
     // use RBT utility
     vector<int> listLbls;
     treeCurr.GetLabelList(listLbls);
@@ -732,11 +711,7 @@ double ScistPerfPhyMLE :: ScoreTree(const string &strTree, std::vector<std::pair
     
     for(int site=0; site<genosInput.GetNumSites(); ++site)
     {
-//cout << "ScoreTree: site " << site << " multi:" << this->listInputColMulti[site] << endl;
-//cout << "Heterozygote clus: ";
-//listClusMutsInputHetero[site].Dump();
-//cout << "Homozygous clus: ";
-//listClusMutsInputHomo[site].Dump();
+
         pair<ScistPerfPhyCluster,ScistPerfPhyCluster> pp0( listClusMutsInputHetero[site], listClusMutsInputHomo[site] );
         if( setClusDone.find(pp0) != setClusDone.end() )
         {
@@ -750,10 +725,6 @@ double ScistPerfPhyMLE :: ScoreTree(const string &strTree, std::vector<std::pair
         listChangedCluster.push_back(clusChanged);
         res += loglikeliSite*multi;
         setClusDone.insert( pp0 );
-//cout << "site prob: " << loglikeliSite << ": clusChanged: ";
-//clusChanged.first.Dump();
-//cout << "  and ";
-//clusChanged.second.Dump();
     }
     
     return res;

@@ -40,15 +40,15 @@ void TestNJ()
 void PhyloDistance :: SetDistance(int node1, int node2, double dist)
 {
     //
-    pair<int,int> pp(node1,node2);
-    mapDists.insert( map< pair<int,int>, double> :: value_type(pp, dist) );
+    std::pair<int,int> pp(node1,node2);
+    mapDists.insert( std::map< std::pair<int,int>, double> :: value_type(pp, dist) );
 }
 
 double PhyloDistance :: GetDistance(int node1, int node2) const
 {
     //
     PhyloDistance *pthis = const_cast<PhyloDistance *> (this);
-    pair<int,int> pp1(node1, node2), pp2(node2, node1);
+    std::pair<int,int> pp1(node1, node2), pp2(node2, node1);
     if( mapDists.find(pp1) != mapDists.end() )
     {
         //
@@ -445,10 +445,7 @@ string DistanceTreeBuilder :: ConstrainedUPGMA( const set<set<int> > &setCluster
 
 bool DistanceTreeBuilder :: IsClusterIncompatible(const set<int> &clus1, const set<int> &clus2, int numTotElem) const
 {
-//cout << "Clus1: ";
-//DumpIntSet(clus1);
-//cout << "clus2: ";
-//DumpIntSet(clus2);
+
     // four gamate test
     set<int> sint;
     JoinSets( clus1, clus2, sint );
@@ -471,12 +468,7 @@ bool DistanceTreeBuilder :: IsClusterIncompatible(const set<int> &clus1, const s
             return true;
         }
     }
-    //set<int> sdiff2 = clus2;
-    //SubtractSets(sdiff2, clus1);
-    //if( sdiff2.size() == clus1.size() )
-    //{
-    //    return true;
-    //}
+
     return false;
 }
 
