@@ -202,9 +202,10 @@ std::string ScistGenGenotypeMat :: ConsNJTreeNoInc() const
 {
     PhyloDistance dist;
     // setup pairwise hamming distance
-    for(int i=0; i<GetNumHaps(); ++i)
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
-        for(int j=i+1; j<GetNumHaps(); ++j)
+        for(int j=i+1; j<numberHaps ; ++j)
         {
             //
             double d = CalcHammingDistBetwHaps(i, j);
@@ -219,7 +220,8 @@ std::string ScistGenGenotypeMat :: ConsNJTreeNoInc() const
 double ScistGenGenotypeMat :: CalcHammingDistBetwHaps(int h1, int h2) const
 {
     int numDiffs = 0;
-    for(int c=0; c<GetNumSites(); ++c)
+    int numberSites = GetNumSites();
+    for(int c=0; c<numberSites; ++c)
     {
         if( GetGenotypeAt(h1, c) != GetGenotypeAt(h2, c)  && IsProbAtCellPosSignificant( h1, c, GetSignificanceThres()  )
            &&  IsProbAtCellPosSignificant( h2, c, GetSignificanceThres() ) )
@@ -227,20 +229,21 @@ double ScistGenGenotypeMat :: CalcHammingDistBetwHaps(int h1, int h2) const
             ++numDiffs;
         }
     }
-    return (1.0*numDiffs)/GetNumSites();
+    return (1.0*numDiffs)/numberSites;
 }
 
 void ScistGenGenotypeMat :: ConsCompatMap( std::set<std::pair<int,int> > &setCompatPairs ) const
 {
     //
     setCompatPairs.clear();
-    for(int s1=0; s1<GetNumSites(); ++s1)
+    int numberSites = GetNumSites();
+    for(int s1=0; s1<numberSites; ++s1)
     {
-        for(int s2=s1+1; s2<GetNumSites(); ++s2)
+        for(int s2=s1+1; s2<numberSites; ++s2)
         {
             if( IsCompatible(s1, s2) )
             {
-                pair<int,int> pp(s1,s2);
+                std::pair<int,int> pp(s1,s2);
                 setCompatPairs.insert(pp);
             }
         }
@@ -250,7 +253,7 @@ void ScistGenGenotypeMat :: ConsCompatMap( std::set<std::pair<int,int> > &setCom
 bool ScistGenGenotypeMat :: AreSitesCompatInMap(const std::set<std::pair<int,int> > &setCompatPairs, int s1, int s2 )
 {
     //
-    pair<int,int> pp(s1,s2);
+    std::pair<int,int> pp(s1,s2);
     OrderInt(pp.first, pp.second);
     return setCompatPairs.find(pp) != setCompatPairs.end();
 }
@@ -258,9 +261,10 @@ bool ScistGenGenotypeMat :: AreSitesCompatInMap(const std::set<std::pair<int,int
 int ScistGenGenotypeMat :: GetGenotypeNumOf(int geno) const
 {
     int res = 0;
-    for(int i=0; i<GetNumHaps(); ++i)
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
-        for(int j=0; j<GetNumSites(); ++j)
+        for(int j=0; j<numberHaps; ++j)
         {
             if( GetGenotypeAt(i,j) == geno )
             {
@@ -274,7 +278,8 @@ int ScistGenGenotypeMat :: GetGenotypeNumOf(int geno) const
 int ScistGenGenotypeMat :: FindCellByName(const std::string &strName) const
 {
     //
-    for(int i=0; i<GetNumHaps(); ++i)
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
         if( GetGenotypeName(i) == strName)
         {
@@ -287,7 +292,8 @@ int ScistGenGenotypeMat :: FindCellByName(const std::string &strName) const
 void ScistGenGenotypeMat ::Dump() const
 {
     cout << "Genotype names: ";
-    for(int i=0; i<GetNumHaps(); ++i)
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
         cout << GetGenotypeName(i) << "  ";
     }
@@ -297,7 +303,7 @@ void ScistGenGenotypeMat ::Dump() const
 void ScistGenGenotypeMat :: ChangeGenosAtPositions(const std::set< std::pair<std::pair<int,int>, int> > &listChangedPlaces)
 {
     //
-    for( std::set< std::pair<std::pair<int,int>, int> > :: const_iterator it = listChangedPlaces.begin(); it != listChangedPlaces.end(); ++it )
+    for( std::set<std::pair<std::pair<int,int>, int>> :: const_iterator it = listChangedPlaces.begin(); it != listChangedPlaces.end(); ++it )
     {
         //
         SetGenotypeAt( it->first.first, it->first.second, it->second );
@@ -316,17 +322,20 @@ ScistGenGenotypeMat * ScistHaplotypeMat :: Copy() const
     //
     ScistHaplotypeMat *pMatCopy = new ScistHaplotypeMat();
     
-    for(int i=0; i<GetNumNames(); ++i)
+    int numberNames = GetNumNames();
+    int numberHaps = GetNumHaps();
+    int numberSites = GetNumSites();
+    for(int i=0; i<numberNames; ++i)
     {
         pMatCopy->AddGenotypeName( GetGenotypeName(i) );
     }
     
-    pMatCopy->SetSize( GetNumHaps(), GetNumSites() );
+    pMatCopy->SetSize( numberHaps, GetNumSites() );
     
     //
-    for(int i=0; i<GetNumHaps(); ++i)
+    for(int i=0; i<numberHaps; ++i)
     {
-        for(int j=0; j<GetNumSites(); ++j)
+        for(int j=0; j<numberSites; ++j)
         {
             pMatCopy->SetGenotypeAt( i, j, GetGenotypeAt(i,j) );
             pMatCopy->SetGenotypeProbAt(i, j, GetGenotypeProbAllele0At(i,j));
@@ -375,9 +384,6 @@ bool ScistHaplotypeMat :: ReadFromFile( std::ifstream &infile, int numSites, int
             matHaplotypesProb0[j][i] = prob0;
         }
     }
-    
-//cout << "Input matrix: ";
-//this->matHaplotypes.Dump();
     
     return true;
 }
@@ -472,9 +478,7 @@ int ScistHaplotypeMat :: GetGenotypeAt(int sc, int site) const
 
 void ScistHaplotypeMat :: FindMaximalCompatSites( const std::vector<double> &wtSites, std::vector< std::map<int, std::set<int> > > &listSetSitesCompat, int maxNumSets, const std::set<std::pair<int,int> > *pSetCompatPairs ) const
 {
-//#if 0
-    //const double DEF_MIN_FRAC = 0.5;
-    
+
     // we find the maximum weightd clique of compatible pairs
     // construct compat pairs if not done yet
     set<std::pair<int,int> > *pSetCompatPairsUse = const_cast<set<std::pair<int,int> > *>( pSetCompatPairs);
@@ -490,32 +494,7 @@ void ScistHaplotypeMat :: FindMaximalCompatSites( const std::vector<double> &wtS
     
     //
     listSetSitesCompat.clear();
-    //vector<vector<bool> > vecHapsFullyCompat( GetNumSites() );
-    //for(int i=0; i<GetNumSites(); ++i)
-    //{
-    //    vecHapsFullyCompat[i].resize( GetNumSites() );
-    //}
-    
-    //for(int s1 = 0; s1<GetNumSites(); ++s1)
-    //{
-    //    vecHapsFullyCompat[s1][s1] = true;
-    //    for(int s2=s1+1; s2<GetNumSites(); ++s2)
-    //    {
-    //        // root allele: 0
-    //        bool fCompat = matHaplotypesUse.IsCompatibleRooted(s1, s2, 0, 0);
-    //        vecHapsFullyCompat[s1][s2] = fCompat;
-    //        vecHapsFullyCompat[s2][s1] = fCompat;
-//cout << "Sites " << s1 << "," << s2 << ": ";
-//if(fCompat)
-//{
-//cout << " compatible\n";
-//}
-//else
-//{
-//cout << " not compatible\n";
-//}
-    //    }
-    //}
+
 
     //
     set<pair<set<int>,set<int> > > listSetMaxCompatChosen;
@@ -573,14 +552,7 @@ void ScistHaplotypeMat :: FindMaximalCompatSites( const std::vector<double> &wtS
                 }
             }
             
-            // if weight is too small now, stop if we have already get enough
-            //if( wtSiteMax < 1.0)
-            //{
-            //    if( ((int)DEF_MIN_FRAC*GetNumSites()) <= (int)setMaxCompatChosen.size() )
-            //    {
-            //        break;
-            //    }
-            //}
+
             
             for(int jj=0; jj<(int)listSitesNext.size(); ++jj)
             {
@@ -637,116 +609,7 @@ void ScistHaplotypeMat :: FindMaximalCompatSites( const std::vector<double> &wtS
         }
         listSetSitesCompat.push_back(mm);
     }
-    
-//#endif
 
-#if 0
-    BinaryMatrix &matHaplotypesUse = const_cast<BinaryMatrix &>( this->matHaplotypes );
-    
-    //
-    listSetSitesCompat.clear();
-    vector<vector<bool> > vecHapsFullyCompat( GetNumSites() );
-    for(int i=0; i<GetNumSites(); ++i)
-    {
-        vecHapsFullyCompat[i].resize( GetNumSites() );
-    }
-    
-    for(int s1 = 0; s1<GetNumSites(); ++s1)
-    {
-        for(int s2=s1+1; s2<GetNumSites(); ++s2)
-        {
-            // root allele: 0
-            bool fCompat = matHaplotypesUse.IsCompatibleRooted(s1, s2, 0, 0);
-            vecHapsFullyCompat[s1][s2] = fCompat;
-            vecHapsFullyCompat[s2][s1] = fCompat;
-//cout << "Sites " << s1 << "," << s2 << ": ";
-//if(fCompat)
-//{
-//cout << " compatible\n";
-//}
-//else
-//{
-//cout << " not compatible\n";
-//}
-        }
-    }
-    // find maximal compatible components
-    set< set<int> > setMaximalComps;
-    // start by putting all compatible pairs
-    for(int s1 = 0; s1<GetNumSites(); ++s1)
-    {
-        set<int> ss;
-        ss.insert(s1);
-        setMaximalComps.insert(ss);
-    }
-    // find larger
-    while(true)
-    {
-        // every time, make sure size is not too large
-        TrimCliquesMaxDiff( setMaximalComps, maxNumSets );
-//cout << "Size of current cliques to grow: " << setMaximalComps.size() << endl;
-//for( set<set<int> > :: iterator it = setMaximalComps.begin(); it != setMaximalComps.end(); ++it)
-//{
-//DumpIntSet(*it);
-//}
-        
-        set< set<int> > setMaximalCompsNext;
-        // try to grow by adding one more
-        for( set<set<int> > :: iterator it = setMaximalComps.begin(); it != setMaximalComps.end(); ++it )
-        {
-            for(int s=0; s<GetNumSites(); ++s)
-            {
-                if(  it->find(s) == it->end() )
-                {
-                    bool fCompat = true;
-                    for(set<int> :: iterator it2 = it->begin(); it2 != it->end(); ++it2 )
-                    {
-                        if( vecHapsFullyCompat[ s ][ *it2 ]  == false )
-                        {
-                            fCompat = false;
-                            break;
-                        }
-                    }
-                    if( fCompat )
-                    {
-                        set<int> ss = *it;
-                        ss.insert( s );
-                        setMaximalCompsNext.insert(ss);
-//cout << "Growing a subset: ";
-//DumpIntSet(ss);
-                    }
-                }
-            }
-        }
-        if( setMaximalCompsNext.size() == 0 )
-        {
-            break;
-        }
-        else
-        {
-            setMaximalComps = setMaximalCompsNext;
-        }
-    }
-    //
-    //TrimCliquesMaxDiff( setMaximalComps, maxNumSets );
-    
-    YW_ASSERT_INFO( setMaximalComps.size() > 0, "Cannot be empty" );
-    for( set<set<int> > :: iterator it = setMaximalComps.begin(); it != setMaximalComps.end(); ++it )
-    {
-cout << "Clique found: ";
-DumpIntSet(*it);
-        map<int, std::set<int> >  setSitesCompat;
-        
-        set<int> ssChosen = *it;
-        for(set<int> :: iterator it = ssChosen.begin(); it != ssChosen.end(); ++it)
-        {
-            set<int> ss;
-            GetMutRowsHapAtSite(*it, ss);
-            setSitesCompat[*it] = ss;
-        }
-        listSetSitesCompat.push_back(setSitesCompat);
-    }
-#endif
 }
 
 int ScistHaplotypeMat :: GetNumSites() const
@@ -763,7 +626,8 @@ void ScistHaplotypeMat :: GetMutRowsHapAtSite(int site, std::set<int> &setRows) 
 {
     // any allele w/ non-zero is mutant
     setRows.clear();
-    for(int r=0; r<matHaplotypes.GetRowNum(); ++r)
+    int rowNumber = matHaplotypes.GetRowNum();
+    for(int r=0; r<rowNumber; ++r)
     {
         if( matHaplotypes(r, site) == 1 )
         {
@@ -853,8 +717,9 @@ std::string ScistHaplotypeMat :: ConsTree() const
 {
     //
     // construct phylogeny
-    vector<int> rootZero;
-    for(int i=0; i<GetNumSites(); ++i)
+    std::vector<int> rootZero;
+    int numberSites = GetNumSites();
+    for(int i=0; i<numberSites; ++i)
     {
         rootZero.push_back(0);
     }
@@ -864,8 +729,9 @@ std::string ScistHaplotypeMat :: ConsTree() const
     phTree.RemoveDegreeTwoNodes();
     
     // now assign leaf labels
-    map<string,string> mapIdToLabels;
-    for(int i=0; i<GetNumHaps(); ++i)
+    std::map<string,string> mapIdToLabels;
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
         //cout << "i: " << i << ", name: " << this->genosInput.GetGenotypeName(i) << endl;
         string str = "(" + std::to_string(i) + ")";
@@ -874,7 +740,7 @@ std::string ScistHaplotypeMat :: ConsTree() const
     phTree.ReassignLeafLabels( mapIdToLabels );
     
     
-    string res;
+    std::string res;
     phTree.ConsNewickSorted(res);
     //phTree.ConsNewick(res, false, 0.0, true);
     return res;
@@ -896,18 +762,11 @@ void ScistHaplotypeMat :: Dump() const
     ScistGenGenotypeMat ::Dump();
     
     //
-    cout << "Matrix: [" << GetNumHaps() << "," << GetNumSites() << "]" << endl;
+    int numberHaps = GetNumHaps();
+    int numberSites = GetNumSites();
+    cout << "Matrix: [" << numberHaps  << "," << numberSites << "]" << endl;
     this->matHaplotypes.Dump();
-#if 0
-    cout << "Clusters\n";
-    for(int c=0; c<GetNumSites(); ++c)
-    {
-        cout << "Site " << c+1 << ": ";
-        set<int> rowsMut;
-        this->matHaplotypes.GetRowsWithAllele(c, 1, rowsMut);
-        DumpIntSet(rowsMut);
-    }
-#endif
+
     cout << "Probabilities: \n";
     for(int i=0; i<(int)matHaplotypesProb0.size(); ++i)
     {
@@ -919,11 +778,14 @@ void ScistHaplotypeMat :: OutputImput(const string *pStrDesc) const
 {
     //
     cout << "Lineages: ";
-    for(int i=0; i<GetNumNames(); ++i)
+    int numberNames = GetNumNames();
+
+    for(int i=0; i<numberNames; ++i)
     {
         cout << GetGenotypeName(i) << "  ";
     }
     cout << endl;
+
     if( pStrDesc != NULL )
     {
         cout << *pStrDesc << endl;
@@ -932,11 +794,14 @@ void ScistHaplotypeMat :: OutputImput(const string *pStrDesc) const
     {
         cout << "Imputed genotypes: \n";
     }
-    for(int s=0; s<GetNumSites(); ++s)
+
+    int numberSites = GetNumSites();
+    int numberHaps = GetNumHaps();
+    for(int s=0; s<numberSites ; ++s)
     {
         cout << "Site " << setw(6) << s+1 << ":\t";
 
-        for(int i=0; i<GetNumHaps(); ++i)
+        for(int i=0; i<numberHaps; ++i)
         {
             cout << GetGenotypeAt(i, s) << " ";
         }
@@ -972,17 +837,20 @@ ScistGenGenotypeMat * ScistTernaryMat :: Copy() const
     //
     ScistTernaryMat *pMatCopy = new ScistTernaryMat();
     
-    for(int i=0; i<GetNumNames(); ++i)
+    int numberNames = GetNumNames();
+    for(int i=0; i<numberNames; ++i)
     {
         pMatCopy->AddGenotypeName( GetGenotypeName(i) );
     }
     
-    pMatCopy->SetSize( GetNumHaps(), GetNumSites() );
+    int numberHaps = GetNumHaps();
+    pMatCopy->SetSize( numberHaps, GetNumSites() );
     
     //
-    for(int i=0; i<GetNumHaps(); ++i)
+    int numberSites = GetNumSites();
+    for(int i=0; i<numberHaps; ++i)
     {
-        for(int j=0; j<GetNumSites(); ++j)
+        for(int j=0; j<numberSites; ++j)
         {
             pMatCopy->SetGenotypeAt( i, j, GetGenotypeAt(i,j) );
             pMatCopy->SetGenotypeProbOfGenoAt(i, j, 0, GetGenotypeProbAt(i,j, 0));
@@ -1209,8 +1077,9 @@ bool ScistTernaryMat :: IsCompatible(int s1, int s2) const
 std::string ScistTernaryMat :: ConsTree() const
 {
     // construct phylogeny
-    vector<int> rootZero;
-    for(int i=0; i<GetNumSites(); ++i)
+    std::vector<int> rootZero;
+    int numberSites = GetNumSites();
+    for(int i=0; i<numberSites; ++i)
     {
         rootZero.push_back(0);
     }
@@ -1225,8 +1094,9 @@ std::string ScistTernaryMat :: ConsTree() const
     phTree.RemoveDegreeTwoNodes();
     
     // now assign leaf labels
-    map<string,string> mapIdToLabels;
-    for(int i=0; i<GetNumHaps(); ++i)
+    std::map<string,string> mapIdToLabels;
+    int numberHaps = GetNumHaps();
+    for(int i=0; i<numberHaps; ++i)
     {
         //cout << "i: " << i << ", name: " << this->genosInput.GetGenotypeName(i) << endl;
         string str = "(" + std::to_string(i) + ")";
@@ -1253,7 +1123,9 @@ void ScistTernaryMat :: Dump() const
     ScistGenGenotypeMat::Dump();
     
     //
-    cout << "Matrix: [" << GetNumHaps() << "," << GetNumSites() << "]" << endl;
+    int numberHaps = GetNumHaps();
+    int numberSites = GetNumSites();
+    cout << "Matrix: [" << numberHaps << "," << numberSites << "]" << endl;
     this->matTernary.Dump();
 
     cout << "Probabilities: \n";
@@ -1270,8 +1142,11 @@ void ScistTernaryMat :: Dump() const
 void ScistTernaryMat :: OutputImput(const string *pStrDesc) const
 {
     //
+    int numberHaps = GetNumHaps();
+    int numberNames = GetNumNames();
+    int numberSites = GetNumSites();
     cout << "Lineages: ";
-    for(int i=0; i<GetNumNames(); ++i)
+    for(int i=0; i<numberNames; ++i)
     {
         cout << GetGenotypeName(i) << "  ";
     }
@@ -1284,11 +1159,11 @@ void ScistTernaryMat :: OutputImput(const string *pStrDesc) const
     {
         cout << "Imputed genotypes: \n";
     }
-    for(int s=0; s<GetNumSites(); ++s)
+    for(int s=0; s<numberSites; ++s)
     {
         cout << "Site " << setw(6) << s+1 << ":\t";
         
-        for(int i=0; i<GetNumHaps(); ++i)
+        for(int i=0; i<numberHaps; ++i)
         {
             cout << GetGenotypeAt(i, s) << " ";
         }
@@ -1298,8 +1173,9 @@ void ScistTernaryMat :: OutputImput(const string *pStrDesc) const
 
 void ScistTernaryMat :: ConsHapMatForDistCalc( BinaryMatrix &matHaplotypes ) const
 {
-    matHaplotypes.SetSize( GetNumHaps(), 2*GetNumSites() );
-    for( int r=0; r<GetNumHaps(); ++r )
+    int numberHaps = GetNumHaps();
+    matHaplotypes.SetSize( numberHaps, 2*GetNumSites() );
+    for( int r=0; r<numberHaps; ++r )
     {
         for(int s=0; s<GetNumSites(); ++s)
         {

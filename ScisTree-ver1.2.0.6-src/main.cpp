@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <chrono>
 
 using namespace std;
 
@@ -243,17 +244,6 @@ static ScistGenGenotypeMat* ReadsInput(const char *filename )
                 
                 pMatIn->ReadFromFile(inFile, numSites, numSCs, fSiteName);
  
-#if 0
-if( fSiteName )
-{
-cout << "List of site names: ";
-for(int i=0; i<numSites; ++i)
-{
-cout << pMatIn->GetSiteName(i) << " ";
-}
-cout << endl;
-}
-#endif
                 
                 break;
             }
@@ -326,12 +316,7 @@ static void TestCode( const char *filename )
     string filenameUse = filename;
     pMatInput->SetFileName(filenameUse);
     
-//cout << "Input genotype matrix:\n";
-//pMatInput->Dump();
-//string strNJ2 = pMatInput->ConsNJTree();
-//cout << "NJ tree: " << strNJ2 << endl;
-//delete pMatInput;
-//exit(1);
+
     
     if( fOptParam )
     {
@@ -342,7 +327,13 @@ static void TestCode( const char *filename )
     }
     else
     {
-        string treeNJ = pMatInput->ConsNJTree();
+        cout << "Initializing ConsNJTree()...." << endl;
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        std::string treeNJ = pMatInput->ConsNJTree();
+        cout << "...finished" << endl;
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::cout << "Time elasped: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << " [seconds]" << std::endl;
+
         if( fVerbose )
         {
             cout << "Neighbor joining tree from noisy genotypes: " << treeNJ << endl;
@@ -357,11 +348,7 @@ static void TestCode( const char *filename )
         // plain mode if no double is allowed
         if( numDoublets == 0 )
         {
-#if 0
-            ScistFullPerfPhyMLE ppInfHeu(*pMatInput);
-            ppInfHeu.SetVerbose(fVerbose);
-            ppInfHeu.Infer();
-#endif
+
             
             ScistPerfPhyMLE ppInfHeu(*pMatInput);
             ppInfHeu.SetBrOpt(fOptBrLen);
@@ -373,7 +360,7 @@ static void TestCode( const char *filename )
             ppInfHeu.SetCellNames(listCellNames);
             ppInfHeu.SetSiteNames(listSiteNames);
             ppInfHeu.SetMutTreeFileName(strMutTreeOutFile);
-	    ppInfHeu.SetNumThreads(intNumThreads);
+            ppInfHeu.SetNumThreads(intNumThreads);
             ppInfHeu.Infer();
         }
         else

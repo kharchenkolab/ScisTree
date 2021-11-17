@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <cmath>
 #include "UtilsNumerical.h"
+#include <chrono>
 
 const int MAX_SPR_OP = 1;
 
@@ -280,11 +281,12 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
 
     // thread pool
     if( fVerbose) {
-      std::cout<<"starting pool with "<<numThreads<<" threads"<<endl;
+      std::cout<<"Starting pool with "<<numThreads<<" threads"<<endl;
     }
     ctpl::thread_pool p( numThreads>1 ? numThreads : 1 );
     
-    
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    std::cout << "Starting ScistPerfPhyMLE calculation, while true..." << std::endl;
     while(true)
     {
         
@@ -361,7 +363,10 @@ double ScistPerfPhyMLE :: Infer( std::set< std::pair<std::pair<int,int>, int> > 
         }
     }
     // END of WHILE loop 
-
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "...out of while loop" << std::endl;
+    std::cout << "Time elasped: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << " [seconds]" << std::endl;
+    
     // output the final tree
     std::set< std::pair<std::pair<int,int>, int> > listChangedPlaces;
     for(int site = 0; site<this->genosInput.GetNumSites(); ++site)

@@ -918,13 +918,13 @@ void DirectedGraph :: OutputGML( const char *fileName)
     for( map<int, GraphVertex> :: const_iterator it = vertices.begin(); it != vertices.end(); ++it)
 	{
 		outFile << "node [\n";
-		const char *name = it->second.GetLabel().c_str();
+		//const char *name = it->second.GetLabel().c_str();
         // the name is equal to it
 //		name[0] = 'v'; 
 //		sprintf(&name[1], "%d", i+1);
 		outFile << "id " <<  it->first  << endl;
 		outFile << "label ";
-		OutputQuotedString (outFile,  name  ); 
+		OutputQuotedString (outFile,  (const char*)it->second.GetLabel().c_str() ); 
 		outFile << endl;
 		outFile << "defaultAtrribute   1\n";
 		outFile << "]\n";
@@ -937,7 +937,7 @@ void DirectedGraph :: OutputGML( const char *fileName)
         for(int i=0; i<(int)it->second.size(); ++i)
         {
             GraphEdge e = it->second[i];
-    		const char *name = e.GetLabel().c_str();
+    		//const char *name = e.GetLabel().c_str();
             int v1, v2;
             e.GetVertexIDs( v1, v2 );
 
@@ -946,34 +946,12 @@ void DirectedGraph :: OutputGML( const char *fileName)
 			outFile << "target  " << v2 << endl; 
 			outFile << "label " ;
 //cout << "edge label = " << name << endl;
-			OutputQuotedString( outFile,  name  );
+			OutputQuotedString( outFile, (const char*)e.GetLabel().c_str() );
 			outFile << "\n";
 			outFile << "]\n";
         }
     }
 
-
-
-#if 0
-	for(int i=0; i< numVerts; ++i )
-	{
-		for(int j=i+1; j<numVerts; ++j)
-		{
-			if( IsNeighour ( i, j) )
-			{
-
-//cout << "Output an edge \n"; 
-				outFile << "edge [\n";
-				outFile << "source " << i+1 << endl; 
-				outFile << "target  " << j+1 << endl; 
-				outFile << "label " ;
-				OutputQuotedString( outFile,  ""  );
-				outFile << "\n";
-				outFile << "]\n";
-			}
-		}
-	}
-#endif
 
 	// Finally quite after closing file
 	outFile << "\n]\n";
